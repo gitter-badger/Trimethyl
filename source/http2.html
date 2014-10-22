@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Notifications-HTTP'>/**
+</span> * @class  Notifications.HTTP
+ * @author  Flavio De Stefano &lt;flavio.destefano@caffeinalab.com&gt;
+ * HTTP API Driver for Notifications
+ */
+
+
+<span id='Notifications-HTTP-property-config'>/**
+</span> * * `endpoint` URL for subscription. Type `String`. Default `null`
+ * * `subscribeDataExtend` Additional data to extend for subscribe. Type `Object`. Default `null`
+ * @type {Object}
+ */
+var config = _.extend({
+	endpoint: null,
+	subscribeDataExtend: null,
+}, Alloy.CFG.T.notifications ? Alloy.CFG.T.notifications.http : {});
+exports.config = config;
+
+var HTTP = require(&#39;T/http&#39;);
+
+
+exports.subscribe = function(opt) {
+	HTTP.send({
+		url: config.endpoint,
+		method: &#39;POST&#39;,
+		data: _.extend({
+			device_token: opt.deviceToken,
+			channel_id: opt.channel,
+			app_id: Ti.App.id,
+			app_version: Ti.App.version,
+			app_deploytype: Ti.App.deployType,
+			os: (function() {
+				if (OS_IOS) return 1;
+				if (OS_ANDROID) return 2;
+			})(),
+		}, config.subscribeDataExtend),
+		success: opt.success,
+		error: opt.error
+	});
+};
+
+exports.unsubscribe = function(opt) {
+	HTTP.send({
+		url: config.endpoint,
+		method: &#39;DELETE&#39;,
+		data: {
+			device_token: opt.deviceToken,
+			channel_id: opt.channel,
+			app_id: Ti.App.id,
+		},
+		success: opt.success,
+		error: opt.error
+	});
+};</pre>
+</body>
+</html>

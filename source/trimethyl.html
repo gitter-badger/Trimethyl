@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Trimethyl'>/**
+</span> * @class  Trimethyl
+ * @author  Flavio De Stefano &lt;flavio.destefano@caffeinalab.com&gt;
+ * The framework initializator
+ */
+
+Ti.Trimethyl = &#39;2.0.0&#39;;
+
+var Util = require(&#39;T/util&#39;);
+var Device 	= require(&#39;T/device&#39;);
+var Event = require(&#39;T/event&#39;);
+
+var launchURL = Util.parseSchema();
+var pauseURL = null;
+
+Ti.App.addEventListener(&#39;pause&#39;, function(){
+	pauseURL = launchURL;
+	Event.trigger(&#39;app.paused&#39;);
+});
+
+Ti.App.addEventListener(&#39;resumed&#39;, function() {
+	launchURL = Util.parseSchema();
+
+	if (launchURL !== pauseURL) {
+		Event.trigger(&#39;app.resumed&#39;, {
+			url: launchURL
+		});
+	}
+});
+
+
+// Set some TSS vars
+
+Alloy.Globals.SCREEN_WIDTH = Device.getScreenWidth();
+Alloy.Globals.SCREEN_HEIGHT = Device.getScreenHeight();
+Alloy.Globals.SCREEN_DENSITY = Device.getScreenDensity();
+Alloy.Globals.SIMULATOR  = Device.isSimulator();
+
+Alloy.Globals.SCREEN_RETINA = +Alloy.Globals.SCREEN_DENSITY === 2;
+Alloy.Globals.IOS7 = Util.isIOS7();
+Alloy.Globals.IOS8 = Util.isIOS8();
+</pre>
+</body>
+</html>

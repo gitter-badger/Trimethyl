@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Uiutil'>/**
+</span> * @class  	Uiutil
+ * @author  Flavio De Stefano &lt;flavio.destefano@caffeinalab.com&gt;
+ */
+
+
+<span id='Uiutil-property-config'>/**
+</span> * @type {Object}
+ */
+var config = _.extend({
+}, Alloy.CFG.T.uiutil);
+exports.config = config;
+
+
+<span id='Uiutil-method-populateListViewFromCollection'>/**
+</span> * @method populateListViewFromCollection
+ * Parse an array or a Backbone.Collection and populate a ListView with this values.
+ *
+ * @param  {Array} 	C   	Array or Backbone.Collection to parse
+ * @param  {Object} 	opt
+ *
+ * ### datasetCb
+ *
+ * You must provide a callback to fill the ListItem, like this:
+ *
+ * ```
+ * return {
+ *	   properties: {
+ *	      height: 52,
+ *			itemId: el.id,
+ *			searchableText: el.get(&#39;city&#39;)
+ *		},
+ *		title: { text: el.get(&#39;title&#39;) },
+ *		address: { text: el.get(&#39;address&#39;)+&#39;, &#39;+el.get(&#39;city&#39;) }
+ *	}
+ * ```
+ *
+ * ### [groupBy]
+ *
+ * See `_.groupBy`
+ *
+ * ### [headerViewCb]
+ *
+ * A callback to generate the headerView for the ListView.
+ *
+ * ### [sectionIndex]
+ *
+ * If `true`, provide the **alphabet on the right** functionality.
+ *
+ * @param  {Ti.UI.ListView} [$ui]
+ * The ListView to populate. If is not specified, return the elements instead populating directly.
+ *
+ * @return {Array}
+ */
+exports.populateListViewFromCollection = function(C, opt, $ui) {
+	var array = [];
+	var sec = [];
+
+	if (opt.groupBy != null) {
+
+		array = C instanceof Backbone.Collection ? C.groupBy(opt.groupBy) : _.groupBy(C, opt.groupBy);
+		_.each(array, function(els, key){
+			var dataset = [];
+			_.each(els, function(el){
+				dataset.push(opt.datasetCb(el));
+			});
+
+			var s = Ti.UI.createListSection({ items: dataset });
+			if (_.isFunction(opt.headerViewCb)) s.headerView = opt.headerViewCb(key);
+			else s.headerTitle = key;
+
+			sec.push(s);
+		});
+
+		if ($ui != null &amp;&amp; opt.sectionIndex != null) {
+			var sit = [];
+			_.each(_.keys(array), function(u,k){
+				sit.push({ title: u, index: k });
+			});
+			$ui.sectionIndexTitles = sit;
+		}
+
+	} else {
+
+		array = C instanceof Backbone.Collection ? C.toJSON() : C;
+		var dataset = [];
+		_.each(array, function(el){
+			dataset.push(opt.datasetCb(el));
+		});
+
+		sec = [ Ti.UI.createListSection({ items: dataset }) ];
+	}
+
+	if ($ui != null) $ui.sections = sec;
+
+	return sec;
+};
+
+</pre>
+</body>
+</html>
